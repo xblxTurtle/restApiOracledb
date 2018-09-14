@@ -52,9 +52,9 @@ VALUES
     :salary,
     :commission_pct,
     :manager_id,
-    :department_id)
-    returning employee_id into :employee_id;
-    `;
+    :department_id) 
+    returning employee_id 
+    into :employee_id`;
 
 const baseUpdateQuery = 
 `UPDATE employees
@@ -100,11 +100,12 @@ async function create(context) {
 }
 
 async function update(context) {
+    const employee = Object.assign({}, context);
     let query = baseUpdateQuery;
-    const result = await database.simpleExecute(query, context);
+    const result = await database.simpleExecute(query, employee);
 
     if (result.rowsAffected && result.rowsAffected === 1) {
-        return context;
+        return employee;
       } else {
         return null;
       }
@@ -119,8 +120,8 @@ async function remove(employee_id) {
         dir: oracledb.BIND_OUT,
         type: oracledb.NUMBER  
     };
-    let result = database.simpleExecute(baseRemoveQuery, bind);
-    
+    let result = await database.simpleExecute(query, bind);
+
     return result.outBinds.rowcount === 1;
 }
 

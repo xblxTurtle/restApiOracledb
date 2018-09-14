@@ -41,7 +41,7 @@ function getEmployeeFromReq(req) {
     return employee;
 }
 
-async function post(req, resp, next) {
+async function post(req, res, next) {
     
     try {
         let employee = getEmployeeFromReq(req);
@@ -55,26 +55,32 @@ async function post(req, resp, next) {
     }
 }
 
-async function put(req, resp, next) {
+async function put(req, res, next) {
     try {
-        let employee = getEmployeeFromReq(req);
-        employee.employee_id = parseInt(req.params.employee_id,10);
-        employee = await employees.update(employee);
+        console.log('getting employee from body');
+        var employee = getEmployeeFromReq(req);
+        console.log('getting employee_id from url');
+        employee.employee_id = parseInt(req.params.id,10);
+        console.log('sending query to db');
+        let context = employee;
+        context = await employees.update(context);
 
         if (employee !== null) {
-            res.status(http_status.OK).end();
+            res.status(http_status.OK).json(employee);
         } 
         else 
             res.status(http_status.NOT_FOUND).end();
     }
     catch(err) {
+        console.log(err);
+        console.log(employee);
         next(err);
     }
 }
 
 async function remove(req, resp, next) {
     try {
-        let employee_id =  parseInt(req.params.employee_id,10);
+        let employee_id =  parseInt(req.params.id,10);
         let success = await employees.remove(employee_id);
         if (success) {
             resp.status(http_status.NO_CONTENT).end();

@@ -12,8 +12,8 @@ function initialize() {
     httpServer = http.createServer(app);
 
     app.use(logger('combined'));
-    app.use('/api',router);
     app.use(express.json({reviver: reviveJson}));
+    app.use('/api',router);    
     
     httpServer.listen(webServerConfig.port, err => {
       if (err) {
