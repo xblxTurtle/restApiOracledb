@@ -55,5 +55,23 @@ async function post(req, resp, next) {
     }
 }
 
+async function put(req, resp, next) {
+    try {
+        let employee = getEmployeeFromReq(req);
+        employee.employee_id = parseInt(req.params.employee_id,10);
+        employee = await employees.update(employee);
+
+        if (employee !== null) {
+            res.status(http_status.OK).end();
+        } 
+        else 
+            res.status(http_status.NOT_FOUND).end();
+    }
+    catch(err) {
+        next(err);
+    }
+}
+
 module.exports.get = get;
 module.exports.post = post;
+module.exports.put = put;

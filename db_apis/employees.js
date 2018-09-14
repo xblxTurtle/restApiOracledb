@@ -15,7 +15,7 @@ const baseSelectQuery =
     department_id "department_id"
   from employees`;
 
-  const baseInsertQuery = 
+const baseInsertQuery = 
   `INSERT INTO employees
 (
     first_name, 
@@ -41,6 +41,23 @@ VALUES
     :manager_id,
     :department_id)
     returning employee_id into :employee_id;
+    `;
+
+const baseUpdateQuery = 
+`UPDATE employees
+SET 
+    first_name = :first_name, 
+    last_name = :last_name, 
+    email = :email, 
+    phone_number = :phone_number, 
+    hire_date = :hire_date,
+    job_id = :job_id,
+    salary = :salary,
+    commission_pct = :commission_pct,
+    manager_id = :manager_id,
+    department_id = :department_id
+WHERE
+    employee_id = :employee_id
     `;
 
 async function find(context) {
@@ -69,5 +86,18 @@ async function create(context) {
     return employee;
 }
 
-module.exports.find = find
-module.exports.create = create
+async function update(context) {
+    let query = baseUpdateQuery;
+    const result = await database.simpleExecute(query, context);
+
+    if (result.rowsAffected && result.rowsAffected === 1) {
+        return context;
+      } else {
+        return null;
+      }
+    
+}
+
+module.exports.update = update;
+module.exports.find = find;
+module.exports.create = create;
