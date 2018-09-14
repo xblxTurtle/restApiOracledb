@@ -13,6 +13,7 @@ function initialize() {
 
     app.use(logger('combined'));
     app.use('/api',router);
+    app.use(express.json({reviver: reviveJson}));
     
     httpServer.listen(webServerConfig.port, err => {
       if (err) {
@@ -28,6 +29,14 @@ function initialize() {
 }
 
 
+const iso8601RegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+
+function reviveJson(key, value) {
+  if ((typeof value === 'string') && (iso8601RegExp.test(value))) {
+    return new Date(value);
+  } else 
+  return value;
+}
 
 function close() {
     return new Promise((resolve, reject) => {

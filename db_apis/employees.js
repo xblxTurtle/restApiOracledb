@@ -1,6 +1,19 @@
 const database = require('../services/database');
 const oracledb = require('oracledb')
 
+const baseRemoveQuery =
+ `begin
+ 
+    delete from job_history
+    where employee_id = :employee_id;
+ 
+    delete from employees
+    where employee_id = :employee_id;
+ 
+    :rowcount := sql%rowcount;
+ 
+  end;`
+
 const baseSelectQuery = 
  `select employee_id "id",
     first_name "first_name",
@@ -98,6 +111,20 @@ async function update(context) {
     
 }
 
+async function remove(employee_id) {
+    let query = baseRemoveQuery;
+    let bind = {}
+    bind.employee_id = employee_id;
+    bind.rowcount = {
+        dir: oracledb.BIND_OUT,
+        type: oracledb.NUMBER  
+    };
+    let result = database.simpleExecute(baseRemoveQuery, bind);
+    
+    return result.outBinds.rowcount === 1;
+}
+
 module.exports.update = update;
 module.exports.find = find;
 module.exports.create = create;
+module.exports.remove = remove;
