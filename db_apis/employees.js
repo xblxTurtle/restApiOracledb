@@ -39,7 +39,9 @@ const baseSelectQuery =
     commission_pct "commission_pct",
     manager_id "manager_id",
     department_id "department_id"
-  from employees`;
+  from employees
+  where
+    1 = 1`;
 
 const baseInsertQuery = 
   `INSERT INTO employees
@@ -89,9 +91,22 @@ WHERE
 async function find(context) {
     let sqlQuery = baseSelectQuery;
     let binds = {}
+
+    console.log('context == '+JSON.stringify(context,null,4));
+
     if (context.id) {
         binds.employee_id = context.id;
-        sqlQuery += ' where employee_id=:employee_id';
+        sqlQuery += ' AND employee_id=:employee_id';
+    }
+    
+    if (context.department_id) {
+        binds.department_id = context.department_id;
+        sqlQuery += ' AND department_id=:department_id';
+    }
+
+    if (context.manager_id) {
+        binds.manager_id = context.manager_id;
+        sqlQuery += ' AND manager_id=:manager_id';
     }
 
     let ar = (context.sort)?context.sort.split(':'):[];
@@ -102,7 +117,7 @@ async function find(context) {
     } else {
         sqlQuery += ' ORDER BY Employee_Id asc';
     }
-    
+
     if (context.skip) {
         sqlQuery += ' OFFSET :skip ROWS';
         binds.skip = context.skip

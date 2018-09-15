@@ -9,6 +9,8 @@ async function get(req, res, next) {
     context.skip = parseInt(req.query.skip, 10);
     context.limit = parseInt(req.query.limit, 10);
     context.sort = req.query.sort;
+    context.department_id = req.query.department_id;
+    context.manager_id = req.query.manager_id;
 
     const rows = await employees.find(context);
 
