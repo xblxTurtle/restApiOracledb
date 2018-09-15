@@ -81,6 +81,16 @@ async function find(context) {
         sqlQuery += ' where employee_id=:employee_id';
     }
 
+    if (context.skip) {
+        sqlQuery += ' OFFSET :skip ROWS';
+        binds.skip = context.skip
+    }
+
+    context.limit = (context.limit > 0)? context.limit : 30;
+    sqlQuery += ' FETCH NEXT :limit ROWS ONLY';
+    binds.limit = context.limit;
+    
+
     const result = await database.simpleExecute(sqlQuery, binds);
     return result.rows;
 }
