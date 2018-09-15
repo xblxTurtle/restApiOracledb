@@ -1,6 +1,19 @@
 const database = require('../services/database');
 const oracledb = require('oracledb')
 
+const employeeColumnsList = [
+    'employee_id',
+    'first_name', 
+    'last_name', 
+    'email', 
+    'phone_number', 
+    'hire_date',
+    'job_id',
+    'salary',
+    'commission_pct',
+    'manager_id',
+    'department_id'
+]
 const baseRemoveQuery =
  `begin
  
@@ -81,6 +94,15 @@ async function find(context) {
         sqlQuery += ' where employee_id=:employee_id';
     }
 
+    let ar = (context.sort)?context.sort.split(':'):[];
+    if ((ar.length === 2)
+    &&(employeeColumnsList.includes(ar[0].toLowerCase())
+    &&(ar[1].toLowerCase() === 'asc' || ar[1].toLowerCase() === 'desc'))) {
+        sqlQuery += ` ORDER BY ${ar[0]} ${ar[1]}`; 
+    } else {
+        sqlQuery += ' ORDER BY Employee_Id asc';
+    }
+    
     if (context.skip) {
         sqlQuery += ' OFFSET :skip ROWS';
         binds.skip = context.skip
@@ -90,7 +112,8 @@ async function find(context) {
     sqlQuery += ' FETCH NEXT :limit ROWS ONLY';
     binds.limit = context.limit;
     
-
+    
+    console.log(sqlQuery);
     const result = await database.simpleExecute(sqlQuery, binds);
     return result.rows;
 }
